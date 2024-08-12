@@ -70,7 +70,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const sendAccessToken = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { email } = req.query;
 
   if (!email) {
     return res

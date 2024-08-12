@@ -17,11 +17,14 @@ app.use(express.urlencoded({ extended: true, limit: FILE_SIZE_LIMIT }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
-
 // Routes Import
 import userRouter from "./routes/user.routes.js";
+import testRouter from "./routes/test.routes.js";
+import quizRouter from "./routes/quiz.routes.js";
 
 // Routes declaration
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/tests", testRouter);
+app.use("/api/v1/quiz", quizRouter);
 
 export default app;
