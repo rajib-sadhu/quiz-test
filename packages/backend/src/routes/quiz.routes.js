@@ -6,6 +6,6 @@ import { createQuiz, getAllQuizzes } from "../controllers/quiz.controller.js";
 const router = Router();
 
 router.route("/create").post(verifyJwt, createQuiz);
-router.route("/show-all").get(verifyJwt, getAllQuizzes);
+router.route("/show").get(verifyJwt, getAllQuizzes);
 
 export default router;

@@ -15,7 +15,7 @@ const answerSchema = new Schema({
   index: {
     type: Number,
     required: true,
-    enum: [1, 2, 3, 4], // Ensure values are within 1 to 4
+    enum: [1, 2, 3, 4],
   },
 });
 
@@ -36,7 +36,7 @@ const quizSchema = new Schema(
     testId: {
       type: String,
       required: true,
-      //   ref: "Test", // Link to the Test model
+      ref: "Test", // Link to the Test model
     },
   },
   { timestamps: true }

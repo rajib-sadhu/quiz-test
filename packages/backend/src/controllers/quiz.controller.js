@@ -84,7 +84,27 @@ const createQuiz = asyncHandler(async (req, res) => {
 });
 
 const getAllQuizzes = asyncHandler(async (req, res) => {
-  const quizzes = await Quiz.find(req?.params?.testId);
+  const { testId } = req?.query;
+
+
+  if (!testId) {
+    return res
+      .status(allStatusCode.clientError)
+      .json(
+        new ApiError(
+          allStatusCode.clientError,
+          "Please provide correct test id."
+        )
+      );
+  }
+
+  const quizzes = await Quiz.find({ testId });
+
+  if (!quizzes) {
+    return res
+      .status(allStatusCode.clientError)
+      .json(new ApiError(allStatusCode.clientError, "Not quizzes provided."));
+  }
 
   return res
     .status(allStatusCode.success)

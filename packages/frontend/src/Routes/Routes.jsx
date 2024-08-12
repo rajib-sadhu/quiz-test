@@ -3,6 +3,8 @@ import Main from "../Layouts/Main";
 import Home from "../Pages/Home/Home";
 import SignIn from "../Pages/SignIn/SignIn";
 import CreateTest from "../Pages/CreateTest/CreateTest";
+import PrivateRoute from "./PrivateRoute";
+import CreateQuiz from "../Pages/CreateQuiz/CreateQuiz";
 
 export const router = createBrowserRouter([
   {
@@ -20,7 +22,20 @@ export const router = createBrowserRouter([
       },
       {
         path: "/create-test",
-        element: <CreateTest />,
+        element: (
+          <PrivateRoute>
+            <CreateTest />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/create-quiz/:id",
+        loader: ({ params }) => params.id,
+        element: (
+          <PrivateRoute>
+            <CreateQuiz />
+          </PrivateRoute>
+        ),
       },
     ],
   },

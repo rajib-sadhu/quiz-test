@@ -34,10 +34,8 @@ const registerUser = asyncHandler(async (req, res) => {
   const existedUserEmail = await User.findOne({ email: email });
   if (existedUserEmail) {
     return res
-      .status(allStatusCode.userExist)
-      .json(
-        new ApiError(allStatusCode.userExist, "User email already exists.")
-      );
+      .status(allStatusCode.success)
+      .json(new ApiError(allStatusCode.success, "User email already exists."));
   }
 
   const user = await User.create({
@@ -71,7 +69,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const sendAccessToken = asyncHandler(async (req, res) => {
   const { email } = req.query;
-
   if (!email) {
     return res
       .status(allStatusCode.unauthorized)

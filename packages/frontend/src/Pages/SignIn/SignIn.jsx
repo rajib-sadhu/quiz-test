@@ -14,25 +14,28 @@ const SignIn = () => {
 
   const from = location.state?.from?.pathname || "/";
 
-  const handleGoogle = () => {
+  const handleGoogle = async () => {
     signInWithGoogle()
-      .then((result) => {
+      .then(async (result) => {
         const loggedInUser = result.user;
-        console.log(loggedInUser);
         const saveUser = {
           name: loggedInUser.displayName,
           email: loggedInUser.email,
         };
 
         try {
-          const res = axiosSecure.post(`/users/register`, saveUser);
+          const res = await axiosSecure.post(`/users/register`, saveUser);
 
           const data = res.data;
 
-          console.log(res)
-
-          toast.success("User Sign in successfully");
-          navigate(from, { replace: true });
+          if (data.message == "User email already exists.") {
+            toast.success("User Logged In Successfully! 😀");
+            navigate(from, { replace: true });
+          }
+          if (data.success) {
+            toast.success("User Created Successfully! 😀");
+            navigate(from, { replace: true });
+          }
         } catch (error) {
           toast.error("Something is wrong, please try again");
           console.log("Google login server ERROR:", error);
