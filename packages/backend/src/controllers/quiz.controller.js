@@ -86,7 +86,6 @@ const createQuiz = asyncHandler(async (req, res) => {
 const getAllQuizzes = asyncHandler(async (req, res) => {
   const { testId } = req?.query;
 
-
   if (!testId) {
     return res
       .status(allStatusCode.clientError)
@@ -117,4 +116,63 @@ const getAllQuizzes = asyncHandler(async (req, res) => {
     );
 });
 
-export { createQuiz, getAllQuizzes };
+const updateQuiz = asyncHandler(async (req, res) => {
+  const { updatedQuestionAnswer, id } = req.body;
+
+  if (
+    !id ||
+    !updatedQuestionAnswer ||
+    !Array.isArray(updatedQuestionAnswer.answers)
+  ) {
+    return res
+      .status(allStatusCode.clientError)
+      .json(
+        new ApiError(
+          allStatusCode.clientError,
+          "ID and question with answers are required."
+        )
+      );
+  }
+
+  const indexedAnswers = updatedQuestionAnswer.answers;
+
+  // Validate answers
+  const validationError = validateAnswers(indexedAnswers);
+  if (validationError) {
+    return res
+      .status(allStatusCode.clientError)
+      .json(new ApiError(allStatusCode.clientError, validationError));
+  }
+
+  // Update the quiz
+  const update = await Quiz.updateOne(
+    { _id: id },
+    {
+      $set: {
+        "question.text": updatedQuestionAnswer.text, // Update question text
+        "question.answers": indexedAnswers,          // Update answers array
+      },
+    }
+  );
+
+  if (update.nModified === 0) {
+    return res
+      .status(allStatusCode.clientError)
+      .json(new ApiError(allStatusCode.clientError, "No changes made."));
+  }
+
+  return res
+    .status(allStatusCode.success)
+    .json(
+      new APIResponse(
+        allStatusCode.success,
+        update,
+        "Quiz updated successfully."
+      )
+    );
+});
+
+// const removeQuiz = asyncHandler(async())
+
+
+export { createQuiz, getAllQuizzes, updateQuiz };

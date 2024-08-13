@@ -22,7 +22,7 @@ const Navbar = () => {
         {user ? (
           <>
             <li className="text-xs">{user?.displayName}</li>
-            <li><img src={user?.photoURL} alt="User name" className="w-5 h-5 rounded-full border" /></li>
+            <li><img src={user?.photoURL || `https://ui-avatars.com/api/?name=${user?.displayName}&&background=312E81&color=fff`} alt="User name" className="w-5 h-5 rounded-full" /></li>
             <li>
               <button
                 onClick={handleLogOut}

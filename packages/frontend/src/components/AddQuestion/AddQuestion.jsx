@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
+import useAxiosSecure from "../../hooks/axiosSecure";
 
-const AddQuestion = ({ handleAddQuestion, refetchShowQuiz }) => {
+const AddQuestion = ({ handleAddQuestion, refetchShowQuiz, testId }) => {
+  const [axiosSecure] = useAxiosSecure();
+
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([
     { text: "", isCorrect: false },
@@ -24,7 +27,7 @@ const AddQuestion = ({ handleAddQuestion, refetchShowQuiz }) => {
     setAnswers(updatedAnswers);
   };
 
-  const handleSaveQuestion = (e) => {
+  const handleSaveQuestion = async (e) => {
     e.preventDefault();
 
     // Validation: Check if question is filled
@@ -45,13 +48,30 @@ const AddQuestion = ({ handleAddQuestion, refetchShowQuiz }) => {
       return;
     }
 
-    // If validation passes, create the new question object
     const newQuestion = {
-      question,
-      answers,
+      question: {
+        text: question,
+        answers,
+      },
+      testId,
     };
-    console.log(newQuestion);
-    // Example: handleAddQuestion(newQuestion);
+
+    try {
+      const res = await axiosSecure.post(`/quiz/create`, newQuestion);
+
+      console.log(res);
+
+      const data = res?.data;
+
+      if (data?.success) {
+        toast.success("Quiz save successfully!");
+        handleAddQuestion();
+        refetchShowQuiz();
+      }
+    } catch (error) {
+      console.log("Add!Question", error);
+      toast.error("Quiz not added.");
+    }
   };
 
   return (
@@ -60,8 +80,7 @@ const AddQuestion = ({ handleAddQuestion, refetchShowQuiz }) => {
         Add Question
       </h3>
       <form className="py-2" onSubmit={handleSaveQuestion}>
-        <input
-          type="text"
+        <textarea
           placeholder="Write Your Question"
           className="border-b border-red-800 w-full px-2 py-2 outline-none text-lg font-medium"
           value={question}
@@ -70,10 +89,13 @@ const AddQuestion = ({ handleAddQuestion, refetchShowQuiz }) => {
         <div className="mt-4 space-y-2">
           {answers.map((answer, index) => (
             <div className="flex items-center gap-2" key={index}>
-              <input
-                type="text"
+              <textarea
                 placeholder={`Answer ${index + 1}`}
-                className="border border-red-800 w-full px-2 py-1 outline-none text-lg font-medium"
+                className={`border w-full px-2 py-1 outline-none text-lg font-medium ${
+                  answer?.isCorrect
+                    ? "border-green-800 border-2 text-green-800 bg-green-100"
+                    : "border-red-800"
+                } `}
                 value={answer.text}
                 onChange={(e) => handleAnswerChange(index, e.target.value)}
               />
@@ -87,7 +109,7 @@ const AddQuestion = ({ handleAddQuestion, refetchShowQuiz }) => {
             </div>
           ))}
         </div>
-        <div className="text-right mt-5 space-x-1">
+        <div className="text-left mt-5 space-x-1">
           <button
             type="submit"
             className="px-3 py-1 bg-red-950 text-white rounded"

@@ -50,19 +50,19 @@ const CreateTest = () => {
                 <h4 className="md:text-lg font-medium">{testName}</h4>
                 <div className="gap-2 flex items-center">
                   <p className="md:block hidden">Room : {testId}</p>
-                  <button className="bg-green-200 text-green-800 p-1 rounded">
+                  <button className="bg-green-200 hover:bg-slate-200 text-green-800 p-1 rounded">
                     <FiEdit />
                   </button>
-                  <button className="bg-white p-1 rounded" title="Delete">
+                  <button className="bg-white hover:bg-slate-200 p-1 rounded" title="Delete">
                     <AiFillDelete className="text-red-600" />
                   </button>
                   <Link
                     to={`/create-quiz/${testId}`}
-                    className="py-2 bg-black px-2 rounded text-xs"
+                    className="py-2 bg-black hover:bg-slate-600 px-2 rounded text-xs"
                   >
                     VIEW
                   </Link>
-                  <button className="bg-white p-1 rounded" title="Delete">
+                  <button className="bg-white hover:bg-slate-200 p-1 rounded" title="Share">
                     <FaShareAlt className="text-red-600" />
                   </button>
                 </div>

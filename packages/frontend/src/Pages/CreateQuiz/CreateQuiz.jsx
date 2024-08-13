@@ -29,7 +29,6 @@ const CreateQuiz = () => {
     endDate,
     tags,
     testId,
-    ownerDetails,
   } = testDetails;
 
   if (loadingAllQuiz && loadingTest) {
@@ -53,7 +52,11 @@ const CreateQuiz = () => {
             <h4>Total Marks: {showQuiz?.length * testMark}</h4>
           </div>
           <div>
-            <h4>Creator: {ownerDetails[0]?.name}</h4>
+            {/* <h4>
+              Creator:{" "}
+              {testDetails?.ownerDetails?.length != 0 &&
+                testDetails?.ownerDetails[0]?.name}
+            </h4> */}
             <h4>Test Start: {startDate || "NA"}</h4>
             <h4>Test End: {endDate || "NA"}</h4>
             <h4>Total Questions: {showQuiz?.length}</h4>
@@ -70,18 +73,25 @@ const CreateQuiz = () => {
         </button>
       </div>
 
-      <div className="mt-2">
+      <div className="mt-3 mb-20">
         {addQuestion && (
           <AddQuestion
+            testId={testId}
             handleAddQuestion={handleAddQuestion}
             refetchShowQuiz={refetchShowQuiz}
           />
         )}
       </div>
 
-      <section className="space-y-2 mt-3">
+      <section className="space-y-5 my-5">
+        <h1 className="text-xl font-semibold">All Questions</h1>
         {showQuiz?.map((value, index) => (
-          <QuestionBox key={value?._id} value={value} index={index} />
+          <QuestionBox
+            key={value?._id}
+            value={value}
+            index={index}
+            refetchShowQuiz={refetchShowQuiz}
+          />
         ))}
       </section>
     </div>
