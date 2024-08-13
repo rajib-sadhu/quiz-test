@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import useAxiosSecure from "../../hooks/axiosSecure";
+import Swal from "sweetalert2";
 
 const QuestionBox = ({ value, index, refetchShowQuiz }) => {
   const question = value?.question;
@@ -79,20 +80,6 @@ const QuestionBox = ({ value, index, refetchShowQuiz }) => {
       },
     };
 
-    // // Check if data is unchanged
-    // const isDataUnchanged =
-    //   question.text === editedQuestion &&
-    //   answers.every(
-    //     (answer, i) =>
-    //       answer.text === editedAnswers[i].text &&
-    //       answer.isCorrect === editedAnswers[i].isCorrect
-    //   );
-
-    // if (isDataUnchanged) {
-    //   // toast.error("No changes detected.");
-    //   return;
-    // }
-
     try {
       const res = await axiosSecure.put("/quiz/update", {
         updatedQuestionAnswer: updatedQuestionAnswer?.question,
@@ -107,6 +94,42 @@ const QuestionBox = ({ value, index, refetchShowQuiz }) => {
       console.error("Quiz update error:", error);
       toast.error("Quiz not updated!");
     }
+  };
+
+  const handleQuizRemove = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await axiosSecure.delete(`/quiz/remove?id=${id}`);
+          const data = res?.data;
+
+          if (data?.success) {
+            refetchShowQuiz();
+            Swal.fire({
+              title: "Deleted!",
+              text: data?.message,
+              icon: "success",
+            });
+          }
+        } catch (error) {
+          console.error("Quiz delete Error:", error);
+
+          Swal.fire({
+            title: "Not Deleted!",
+            text: "Your quiz has been not deleted.",
+            icon: "error",
+          });
+        }
+      }
+    });
   };
 
   const TextWithNewlines = (text) => {
@@ -142,7 +165,7 @@ const QuestionBox = ({ value, index, refetchShowQuiz }) => {
               Edit
             </button>
             <button
-              type="button" // Prevents form submission
+              onClick={() => handleQuizRemove(value?._id)}
               className="rounded px-2 py-1 bg-red-700 hover:bg-red-500 text-white"
             >
               Delete

@@ -150,7 +150,7 @@ const updateQuiz = asyncHandler(async (req, res) => {
     {
       $set: {
         "question.text": updatedQuestionAnswer.text, // Update question text
-        "question.answers": indexedAnswers,          // Update answers array
+        "question.answers": indexedAnswers, // Update answers array
       },
     }
   );
@@ -172,7 +172,46 @@ const updateQuiz = asyncHandler(async (req, res) => {
     );
 });
 
-// const removeQuiz = asyncHandler(async())
+const removeQuiz = asyncHandler(async (req, res) => {
+  const { id } = req?.query;
 
+  if (!id) {
+    return res
+      .status(allStatusCode.clientError)
+      .json(
+        new ApiError(
+          allStatusCode.clientError,
+          "ID and question with answers are required."
+        )
+      );
+  }
 
-export { createQuiz, getAllQuizzes, updateQuiz };
+  try {
+    const deleteQuiz = await Quiz.deleteOne({ _id: id });
+
+    if (deleteQuiz?.deletedCount == 0) {
+      return res
+        .status(allStatusCode.notFound)
+        .json(
+          new ApiError(
+            allStatusCode.notFound,
+            "This id of quiz already deleted or not found."
+          )
+        );
+    }
+
+    return res
+      .status(allStatusCode.success)
+      .json(
+        new APIResponse(
+          allStatusCode.success,
+          deleteQuiz,
+          "Quiz delete successfully."
+        )
+      );
+  } catch (error) {
+    console.log("Delete Quiz Error:", error);
+  }
+});
+
+export { createQuiz, getAllQuizzes, updateQuiz, removeQuiz };

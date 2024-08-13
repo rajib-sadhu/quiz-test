@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { APIResponse } from "../utils/ApiResponse.js";
 import { Test } from "../models/test.models.js";
 import { ObjectId } from "mongodb";
+import { Quiz } from "../models/quiz.models.js";
 
 const generateUniqueTestId = async (userEmail) => {
   let testId;
@@ -36,11 +37,7 @@ const createTest = asyncHandler(async (req, res) => {
     tags,
   } = req.body;
 
-  if (
-    [testName, testDuration, testDescription].some(
-      (field) => field === undefined || field.trim() === ""
-    )
-  ) {
+  if (!testName || !testDuration || !testDescription) {
     return res
       .status(allStatusCode.clientError)
       .json(
@@ -154,4 +151,59 @@ const getTestDetails = asyncHandler(async (req, res) => {
     );
 });
 
-export { createTest, showAllTests, getTestDetails };
+const removeTest = asyncHandler(async (req, res) => {
+  const { testId } = req.query;
+
+  if (!testId) {
+    return res
+      .status(allStatusCode.clientError)
+      .json(
+        new ApiError(
+          allStatusCode.clientError,
+          "test id and question with answers are required."
+        )
+      );
+  }
+
+  try {
+    const deleteQuiz = await Quiz.deleteMany({ testId });
+
+    if (!deleteQuiz?.acknowledged) {
+      return res
+        .status(allStatusCode.notFound)
+        .json(
+          new ApiError(
+            allStatusCode.notFound,
+            "This id of quiz already deleted or not found."
+          )
+        );
+    }
+
+    const deleteTest = await Test.deleteOne({ testId });
+
+    if (deleteTest?.deletedCount == 0) {
+      return res
+        .status(allStatusCode.notFound)
+        .json(
+          new ApiError(
+            allStatusCode.notFound,
+            "This id of test already deleted or not found."
+          )
+        );
+    }
+
+    return res
+      .status(allStatusCode.success)
+      .json(
+        new APIResponse(
+          allStatusCode.success,
+          deleteTest,
+          "Quiz delete successfully."
+        )
+      );
+  } catch (error) {
+    console.log("Delete Quiz Error:", error);
+  }
+});
+
+export { createTest, showAllTests, getTestDetails, removeTest };

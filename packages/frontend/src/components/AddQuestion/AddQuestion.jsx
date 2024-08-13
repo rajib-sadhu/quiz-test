@@ -59,8 +59,6 @@ const AddQuestion = ({ handleAddQuestion, refetchShowQuiz, testId }) => {
     try {
       const res = await axiosSecure.post(`/quiz/create`, newQuestion);
 
-      console.log(res);
-
       const data = res?.data;
 
       if (data?.success) {

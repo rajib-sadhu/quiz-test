@@ -4,18 +4,21 @@ import Datetime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import toast from "react-hot-toast";
 import { FaRegWindowClose } from "react-icons/fa";
+import useAxiosSecure from "../../hooks/axiosSecure";
 
-const CreateTestModal = ({ handleCreateModal }) => {
+const CreateTestModal = ({ handleCreateModal, refetchAllTests }) => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
 
+  const [axiosSecure] = useAxiosSecure();
+
   const isValidDate = (current) => {
     return current.isSameOrAfter(moment());
   };
 
-  const handleCreateTest = (e) => {
+  const handleCreateTest = async (e) => {
     e.preventDefault();
 
     const startMoment = moment(startDate);
@@ -58,7 +61,22 @@ const CreateTestModal = ({ handleCreateModal }) => {
       tags,
     };
 
-    console.log(createTestData);
+    try {
+      const res = await axiosSecure.post(`/tests/create`, createTestData);
+      const data = res?.data;
+
+      if (data?.success) {
+        handleCreateModal();
+        refetchAllTests();
+        toast.success(data?.message);
+        form.rest();
+      }
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Test not created, try again later."
+      );
+      console.log("Create test ERROR:", error);
+    }
   };
 
   const handleTagInputChange = (e) => {

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import useAuth from "../../hooks/useAuth";
 import { FaPlus, FaShareAlt } from "react-icons/fa";
 import CreateTestModal from "../../components/CreateTestModal/CreateTestModal";
 import useAllTests from "../../hooks/useAllTests";
@@ -7,15 +6,54 @@ import LoadingAnimation from "../../components/LoadingAnimation/LoadingAnimation
 import { AiFillDelete } from "react-icons/ai";
 import { FiEdit } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import useAxiosSecure from "../../hooks/axiosSecure";
+import Swal from "sweetalert2";
 
 const CreateTest = () => {
-  const { user } = useAuth();
-
   const [createModal, setCreateModal] = useState(false);
 
   const handleCreateModal = () => setCreateModal(!createModal);
 
-  const [allTests, loadingAllTest] = useAllTests();
+  const [allTests, loadingAllTest, refetchAllTests] = useAllTests();
+
+  const [axiosSecure] = useAxiosSecure();
+
+  const handleTestRemove = async (id) => {
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await axiosSecure.delete(`/tests/remove?testId=${id}`);
+          const data = res?.data;
+
+          if (data?.success) {
+            refetchAllTests();
+            Swal.fire({
+              title: "Deleted!",
+              text: data?.message,
+              icon: "success",
+            });
+          }
+        } catch (error) {
+          console.error("Test delete Error:", error);
+
+          Swal.fire({
+            title: "Not Deleted!",
+            text: "Your test has been not deleted.",
+            icon: "error",
+          });
+        }
+      }
+    });
+  };
 
   return (
     <div className="py-5 px-2">
@@ -53,7 +91,11 @@ const CreateTest = () => {
                   <button className="bg-green-200 hover:bg-slate-200 text-green-800 p-1 rounded">
                     <FiEdit />
                   </button>
-                  <button className="bg-white hover:bg-slate-200 p-1 rounded" title="Delete">
+                  <button
+                    onClick={() => handleTestRemove(testId)}
+                    className="bg-white hover:bg-slate-200 p-1 rounded"
+                    title="Delete"
+                  >
                     <AiFillDelete className="text-red-600" />
                   </button>
                   <Link
@@ -62,7 +104,10 @@ const CreateTest = () => {
                   >
                     VIEW
                   </Link>
-                  <button className="bg-white hover:bg-slate-200 p-1 rounded" title="Share">
+                  <button
+                    className="bg-white hover:bg-slate-200 p-1 rounded"
+                    title="Share"
+                  >
                     <FaShareAlt className="text-red-600" />
                   </button>
                 </div>
@@ -74,7 +119,7 @@ const CreateTest = () => {
 
       <>
         {createModal && (
-          <CreateTestModal handleCreateModal={handleCreateModal} />
+          <CreateTestModal handleCreateModal={handleCreateModal} refetchAllTests={refetchAllTests} />
         )}
       </>
     </div>
